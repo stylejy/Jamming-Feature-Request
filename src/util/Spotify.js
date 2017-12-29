@@ -26,10 +26,17 @@ const Spotify = {
       headers: { 'Authorization': 'Bearer ' + accessToken }
     }).then(response => response.json()).then(jsonResponse => console.log(jsonResponse));
   },
-  search(searchWord) {
-    return fetch(`https://api.spotify.com/v1/search?q=${encodeURI(searchWord)}&type=track`, {
+  search(searchTerm) {
+    return fetch(`https://api.spotify.com/v1/search?q=track:${encodeURI(searchTerm)}&type=track`, {
       headers: { 'Authorization': 'Bearer ' + accessToken }
-    }).then(response => response.json()).then(jsonResponse => console.log(jsonResponse));
+    }).then(response => response.json()).then(jsonResponse => {
+      return jsonResponse.tracks.items.map(item => ({
+        name: item.name,
+        uri: item.uri,
+        album: item.album.name,
+        artist: item.artists[0].name,
+      }));
+    });
   }
 };
 

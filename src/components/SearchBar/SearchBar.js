@@ -5,7 +5,7 @@ class SearchBar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isUserLoggedIn: this.props.Spotify.loginStatus()
+      isUserLoggedIn: this.props.loginStatus()
     };
 
     this.createSearchElements = this.createSearchElements.bind(this);
@@ -14,12 +14,12 @@ class SearchBar extends React.Component {
   }
 
   handleLogin(event) {
-    this.props.Spotify.login();
+    this.props.login();
   }
 
   handleSearch(event) {
-    const searchWord = document.getElementById('search').value;
-    this.props.Spotify.search(searchWord);
+    const searchTerm = document.getElementById('search').value;
+    this.props.searchSpotify(searchTerm);
   }
 
   createSearchElements() {

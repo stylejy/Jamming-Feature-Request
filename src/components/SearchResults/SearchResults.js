@@ -1,4 +1,6 @@
 import React from 'react';
+import Song from '../Song/Song';
+
 
 class SearchResults extends React.Component {
 
@@ -7,11 +9,11 @@ class SearchResults extends React.Component {
       <div className="SearchResults">
         <h2>Results</h2>
         <div className='TrackList'>
+          { this.props.songs.map(song => { return <Song song={song} /> } ) }
         </div>
-        <a className="Track-action">+</a>
       </div>
     );
   }
 }
 
-export default SearchResults
+export default SearchResults;
