@@ -4,12 +4,30 @@ import Song from '../Song/Song';
 
 class SearchResults extends React.Component {
 
+  constructor(props) {
+    super(props);
+
+    this.handleAdd = this.handleAdd.bind(this);
+
+  }
+
+  handleAdd(index) {
+    this.props.add(index);
+  }
+
   render() {
     return (
       <div className="SearchResults">
         <h2>Results</h2>
         <div className='TrackList'>
-          { this.props.songs.map(song => { return <Song song={song} /> } ) }
+          { this.props.songs.map((song, index) => {
+            return (
+              <div className="Track">
+                <Song song={song} />
+                <a onClick={() => this.handleAdd(index)} className="Track-action">+</a>
+              </div>
+            )
+          })}
         </div>
       </div>
     );

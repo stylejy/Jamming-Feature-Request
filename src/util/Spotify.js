@@ -1,5 +1,4 @@
 const clientId = '92654c9fd6694712a18bfade3fbdabfe';
-const clientSecret = 'c1b714c782cc423a953bc362a5e217de';
 const redirectUri = 'http://localhost:3000/';
 const scope = 'playlist-modify-public';
 
@@ -31,10 +30,11 @@ const Spotify = {
       headers: { 'Authorization': 'Bearer ' + accessToken }
     }).then(response => response.json()).then(jsonResponse => {
       return jsonResponse.tracks.items.map(item => ({
+        id: item.id,
         name: item.name,
         uri: item.uri,
         album: item.album.name,
-        artist: item.artists[0].name,
+        artist: item.artists[0].name
       }));
     });
   }
