@@ -13,7 +13,8 @@ class App extends React.Component {
     this.state = {
       songs: [],
       addedSongs: [],
-      user: {}
+      user: {},
+      playlist: {}
     };
 
     Spotify.getUserDetails().then(user => this.setState({user: user}));
@@ -51,8 +52,15 @@ class App extends React.Component {
   }
 
   createPlaylist(name) {
-    return Spotify.createPlaylist(this.state.user.id, name);
+    Spotify.createPlaylist(this.state.user.id, name).then(playlist => this.setState({playlist: playlist}, () => {
+      console.log(this.state.playlist);
+      Spotify.addTracks(this.state.user.id, this.state.playlist.id, this.state.addedSongs);
+    }))
+    ;
+
   }
+
+
 
   render() {
     return (

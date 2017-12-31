@@ -44,6 +44,14 @@ const Spotify = {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
       body: JSON.stringify({name: name})
+    }).then(response => response.json()).then(jsonResponse => jsonResponse);
+  },
+  addTracks(id, playlistId, addedSongs) {
+    const trackUris = addedSongs.map(song => song.uri);
+    return fetch(`https://cors-anywhere.herokuapp.com/https://api.spotify.com/v1/users/${id}/playlists/${playlistId}/tracks`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({uris: trackUris})
     }).then(response => response.json()).then(jsonResponse => console.log(jsonResponse));
   }
 };
