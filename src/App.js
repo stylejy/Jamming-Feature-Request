@@ -12,14 +12,18 @@ class App extends React.Component {
 
     this.state = {
       songs: [],
-      addedSongs: []
+      addedSongs: [],
+      user: {}
     };
+
+    Spotify.getUserDetails().then(user => this.setState({user: user}));
 
     this.searchSpotify = this.searchSpotify.bind(this);
     this.loginStatus = this.loginStatus.bind(this);
     this.login = this.login.bind(this);
     this.addToList = this.addToList.bind(this);
     this.removeFromAddedSongs = this.removeFromAddedSongs.bind(this);
+    this.createPlaylist = this.createPlaylist.bind(this);
   }
 
   searchSpotify(searchTerm) {
@@ -46,6 +50,10 @@ class App extends React.Component {
     return Spotify.login();
   }
 
+  createPlaylist(name) {
+    return Spotify.createPlaylist(this.state.user.id, name);
+  }
+
   render() {
     return (
       <div className="App">
@@ -53,7 +61,7 @@ class App extends React.Component {
         <SearchBar loginStatus={this.loginStatus} searchSpotify={this.searchSpotify} login={this.login} />
         <div className="App-playlist">
           <SearchResults add={this.addToList} songs={this.state.songs} />
-          <Playlist addedSongs={this.state.addedSongs} remove={this.removeFromAddedSongs} />
+          <Playlist addedSongs={this.state.addedSongs} remove={this.removeFromAddedSongs} createPlaylist={this.createPlaylist} />
         </div>
       </div>
     );

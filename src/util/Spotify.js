@@ -3,12 +3,12 @@ const redirectUri = 'http://localhost:3000/';
 const scope = 'playlist-modify-public';
 
 let accessToken;
+let id;
 
 const Spotify = {
   loginStatus() {
     try {
       accessToken = window.location.href.match(/access_token=([^&]*)/)[1];
-      this.getUserDetails();
       return true;
     } catch(e) {
       return false;
@@ -16,14 +16,15 @@ const Spotify = {
   },
   login() {
     window.location.href = encodeURI(
-      `https://accounts.spotify.com/authorize/?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=${scope}`
+      `https://accounts.spotify.com/authorize/?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=${encodeURIComponent(scope)}`
     );
     accessToken = window.location.href.match(/access_token =([^&]*)/)[1];
   },
   getUserDetails() {
+    accessToken = window.location.href.match(/access_token=([^&]*)/)[1];
     return fetch('https://api.spotify.com/v1/me', {
       headers: { 'Authorization': 'Bearer ' + accessToken }
-    }).then(response => response.json()).then(jsonResponse => console.log(jsonResponse));
+    }).then(response => response.json()).then(jsonResponse => jsonResponse);
   },
   search(searchTerm) {
     return fetch(`https://api.spotify.com/v1/search?q=track:${encodeURI(searchTerm)}&type=track`, {
@@ -37,6 +38,13 @@ const Spotify = {
         artist: item.artists[0].name
       }));
     });
+  },
+  createPlaylist(id, name) {
+    return fetch(`https://cors-anywhere.herokuapp.com/https://api.spotify.com/v1/users/${id}/playlists`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({name: name})
+    }).then(response => response.json()).then(jsonResponse => console.log(jsonResponse));
   }
 };
 

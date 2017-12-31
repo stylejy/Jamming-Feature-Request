@@ -7,11 +7,15 @@ class Playlist extends React.Component {
     super(props);
 
     this.handleRemove = this.handleRemove.bind(this);
-
+    this.savePlaylist = this.savePlaylist.bind(this);
   }
 
   handleRemove(index) {
     this.props.remove(index);
+  }
+
+  savePlaylist(event) {
+    this.props.createPlaylist('test')
   }
 
   render() {
@@ -28,7 +32,7 @@ class Playlist extends React.Component {
             )
           })}
         </div>
-        <a className="Playlist-save">SAVE TO SPOTIFY</a>
+        <a onClick={this.savePlaylist} className="Playlist-save">SAVE TO SPOTIFY</a>
       </div>
     );
   }
