@@ -8,6 +8,8 @@ class Playlist extends React.Component {
 
     this.handleRemove = this.handleRemove.bind(this);
     this.savePlaylist = this.savePlaylist.bind(this);
+    this.clearPlaylistField = this.clearPlaylistField.bind(this);
+    this.revertPlaylistField = this.revertPlaylistField.bind(this);
   }
 
   handleRemove(index) {
@@ -18,10 +20,25 @@ class Playlist extends React.Component {
     this.props.createPlaylist('test')
   }
 
+  clearPlaylistField(event) {
+    const playListInput = document.getElementById('playListName');
+    if (playListInput.value === 'New Playlist') {
+      playListInput.value = '';
+    }
+  }
+
+  revertPlaylistField(event) {
+    const playListInput = document.getElementById('playListName');
+    if (playListInput.value === '') {
+      playListInput.value = 'New Playlist';
+    }
+
+  }
+
   render() {
     return (
       <div className="Playlist">
-        <input value='New Playlist' />
+        <input id='playListName' onMouseEnter={this.clearPlaylistField} onMouseLeave={this.revertPlaylistField} type='text' defaultValue='New Playlist' />
         <div className='TrackList'>
           { this.props.addedSongs.map((song, index) => {
             return (

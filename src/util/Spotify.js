@@ -3,7 +3,6 @@ const redirectUri = 'http://localhost:3000/';
 const scope = 'playlist-modify-public';
 
 let accessToken;
-let id;
 
 const Spotify = {
   loginStatus() {
@@ -21,7 +20,12 @@ const Spotify = {
     accessToken = window.location.href.match(/access_token =([^&]*)/)[1];
   },
   getUserDetails() {
-    accessToken = window.location.href.match(/access_token=([^&]*)/)[1];
+    try {
+      accessToken = window.location.href.match(/access_token=([^&]*)/)[1];
+    } catch(e) {
+      accessToken = {};
+    }
+
     return fetch('https://api.spotify.com/v1/me', {
       headers: { 'Authorization': 'Bearer ' + accessToken }
     }).then(response => response.json()).then(jsonResponse => jsonResponse);
