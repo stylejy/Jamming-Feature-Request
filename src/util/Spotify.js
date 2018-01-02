@@ -2,37 +2,41 @@ const clientId = '92654c9fd6694712a18bfade3fbdabfe';
 const redirectUri = 'http://localhost:3000/';
 const scope = 'playlist-modify-public';
 
-let accessToken;
-
 const Spotify = {
+  processAuthValues() {
+    const tokenCallback = window.location.href.match(/access_token=([^&]*)/);
+    const expireInCallBack = window.location.href.match(/expires_in=([^&]*)/);
+    const errorCallback = window.location.href.match(/error=([^&]*)/);
+
+    if (tokenCallback != null) {
+      window.history.pushState({accessToken: tokenCallback[1], expireIn: expireInCallBack[1]}, null, '/');
+      window.setTimeout(() => window.location.reload(), (Number(window.history.state.expireIn) - 100) * 1000);
+    } else if (errorCallback != null) {
+      console.log(errorCallback[1]);
+    } else {
+      window.history.pushState({accessToken: null, expireIn: null}, null, '/');
+    }
+  },
   loginStatus() {
-    try {
-      accessToken = window.location.href.match(/access_token=([^&]*)/)[1];
+    if (window.history.state.accessToken) {
       return true;
-    } catch(e) {
+    } else {
       return false;
     }
   },
-  login() {
+  accessSpotify() {
     window.location.href = encodeURI(
       `https://accounts.spotify.com/authorize/?client_id=${clientId}&response_type=token&redirect_uri=${redirectUri}&scope=${encodeURIComponent(scope)}`
     );
-    accessToken = window.location.href.match(/access_token =([^&]*)/)[1];
   },
   getUserDetails() {
-    try {
-      accessToken = window.location.href.match(/access_token=([^&]*)/)[1];
-    } catch(e) {
-      accessToken = {};
-    }
-
     return fetch('https://api.spotify.com/v1/me', {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
+      headers: { 'Authorization': 'Bearer ' + window.history.state.accessToken }
     }).then(response => response.json()).then(jsonResponse => jsonResponse);
   },
   search(searchTerm) {
     return fetch(`https://api.spotify.com/v1/search?q=track:${encodeURI(searchTerm)}&type=track`, {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
+      headers: { 'Authorization': 'Bearer ' + window.history.state.accessToken }
     }).then(response => response.json()).then(jsonResponse => {
       return jsonResponse.tracks.items.map(item => ({
         id: item.id,
@@ -46,7 +50,7 @@ const Spotify = {
   createPlaylist(id, name) {
     return fetch(`https://cors-anywhere.herokuapp.com/https://api.spotify.com/v1/users/${id}/playlists`, {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+      headers: { 'Authorization': 'Bearer ' + window.history.state.accessToken, 'Content-Type': 'application/json' },
       body: JSON.stringify({name: name})
     }).then(response => response.json()).then(jsonResponse => jsonResponse);
   },
@@ -54,7 +58,7 @@ const Spotify = {
     const trackUris = addedSongs.map(song => song.uri);
     return fetch(`https://cors-anywhere.herokuapp.com/https://api.spotify.com/v1/users/${id}/playlists/${playlistId}/tracks`, {
       method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+      headers: { 'Authorization': 'Bearer ' + window.history.state.accessToken, 'Content-Type': 'application/json' },
       body: JSON.stringify({uris: trackUris})
     }).then(response => response.json()).then(jsonResponse => console.log(jsonResponse));
   }

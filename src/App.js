@@ -14,10 +14,11 @@ class App extends React.Component {
       songs: [],
       addedSongs: [],
       user: {},
-      playlist: {}
+      playlist: {},
     };
 
-    Spotify.getUserDetails().then(user => this.setState({user: user}));
+    Spotify.processAuthValues();
+    Spotify.getUserDetails().then(user => this.state.user = user);
 
     this.searchSpotify = this.searchSpotify.bind(this);
     this.loginStatus = this.loginStatus.bind(this);
@@ -26,6 +27,7 @@ class App extends React.Component {
     this.removeFromAddedSongs = this.removeFromAddedSongs.bind(this);
     this.createPlaylist = this.createPlaylist.bind(this);
   }
+
 
   searchSpotify(searchTerm) {
     Spotify.search(searchTerm).then(songs => this.setState({songs: songs}, () => {console.log(this.state.songs);}));
@@ -48,19 +50,17 @@ class App extends React.Component {
   }
 
   login() {
-    return Spotify.login();
+    Spotify.accessSpotify();
   }
 
   createPlaylist(name) {
+    const addedSongs = this.state.addedSongs;
+    this.setState({addedSongs: []});
     Spotify.createPlaylist(this.state.user.id, name).then(playlist => this.setState({playlist: playlist}, () => {
       console.log(this.state.playlist);
-      Spotify.addTracks(this.state.user.id, this.state.playlist.id, this.state.addedSongs);
-    }))
-    ;
-
+      Spotify.addTracks(this.state.user.id, this.state.playlist.id, addedSongs);
+    }));
   }
-
-
 
   render() {
     return (

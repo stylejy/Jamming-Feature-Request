@@ -17,7 +17,9 @@ class Playlist extends React.Component {
   }
 
   savePlaylist(event) {
-    this.props.createPlaylist('test')
+    const playListInput = document.getElementById('playListName');
+    this.props.createPlaylist(playListInput.value);
+    playListInput.value = 'New Playlist';
   }
 
   clearPlaylistField(event) {
@@ -32,7 +34,6 @@ class Playlist extends React.Component {
     if (playListInput.value === '') {
       playListInput.value = 'New Playlist';
     }
-
   }
 
   render() {
