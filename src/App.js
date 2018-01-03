@@ -1,5 +1,5 @@
 import React from 'react';
-import './style.css';
+import './App.css';
 import SearchBar from './components/SearchBar/SearchBar';
 import SearchResults from './components/SearchResults/SearchResults';
 import Playlist from './components/Playlist/Playlist';
@@ -27,7 +27,6 @@ class App extends React.Component {
     this.removeFromAddedSongs = this.removeFromAddedSongs.bind(this);
     this.createPlaylist = this.createPlaylist.bind(this);
   }
-
 
   searchSpotify(searchTerm) {
     Spotify.search(searchTerm).then(songs => this.setState({songs: songs}, () => {console.log(this.state.songs);}));
@@ -64,12 +63,14 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className="App">
+      <div>
         <h1>Ja<span className="highlight">mmm</span>ing</h1>
-        <SearchBar loginStatus={this.loginStatus} searchSpotify={this.searchSpotify} login={this.login} />
-        <div className="App-playlist">
-          <SearchResults add={this.addToList} songs={this.state.songs} />
-          <Playlist addedSongs={this.state.addedSongs} remove={this.removeFromAddedSongs} createPlaylist={this.createPlaylist} />
+        <div className="App">
+          <SearchBar loginStatus={this.loginStatus} searchSpotify={this.searchSpotify} login={this.login} />
+          <div className="App-playlist">
+            <SearchResults add={this.addToList} songs={this.state.songs} />
+            <Playlist addedSongs={this.state.addedSongs} remove={this.removeFromAddedSongs} createPlaylist={this.createPlaylist} />
+          </div>
         </div>
       </div>
     );

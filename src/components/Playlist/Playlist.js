@@ -1,5 +1,6 @@
 import React from 'react';
 import Song from '../Song/Song';
+import './Playlist.css'
 
 class Playlist extends React.Component {
 
@@ -43,7 +44,7 @@ class Playlist extends React.Component {
         <div className='TrackList'>
           { this.props.addedSongs.map((song, index) => {
             return (
-              <div className="Track">
+              <div className="Track" key={index}>
                 <Song song={song} />
                 <a onClick={() => this.handleRemove(index)} className="Track-action">-</a>
               </div>
