@@ -3,7 +3,7 @@ import './App.css';
 import SearchBar from './components/SearchBar/SearchBar';
 import SearchResults from './components/SearchResults/SearchResults';
 import Playlist from './components/Playlist/Playlist';
-import Spotify from './util/Spotify';
+import {clientId, Spotify} from './util/Spotify';
 
 class App extends React.Component {
 
@@ -17,8 +17,26 @@ class App extends React.Component {
       playlist: {},
     };
 
-    Spotify.processAuthValues();
-    Spotify.getUserDetails().then(user => this.state.user = user);
+
+
+    this.init();
+    console.log(window.history);
+    //Spotify.processAuthValues();
+
+    /*if (window.history.state.accessToken) {
+      Spotify.getUserDetails().then(user => {
+        this.state.user = user;
+        this.saveState(this.state.user, 'user');
+      });
+    } else {
+      window.localStorage.clear();
+    }*/
+
+    /**
+    I don't use setState in a constructor becuase it cuases the error below:
+     "Warning: setState(...): Can only update a mounted or mounting component. This usually means you called setState() on an unmounted component. This is a no-op. Please check the code for the App component."
+    **/
+    //this.setState({user: Spotify.getUserDetails()});
 
     this.searchSpotify = this.searchSpotify.bind(this);
     this.loginStatus = this.loginStatus.bind(this);
@@ -26,6 +44,27 @@ class App extends React.Component {
     this.addToList = this.addToList.bind(this);
     this.removeFromAddedSongs = this.removeFromAddedSongs.bind(this);
     this.createPlaylist = this.createPlaylist.bind(this);
+  }
+
+  init() {
+    const callback = Spotify.processAuthValues();
+
+    //window.history.pushState({accessToken: localStorage[clientId + 'accessToken'], expireIn: localStorage[clientId + 'expireIn']}, null, '/');
+    if (callback) {
+      window.history.pushState({accessToken: callback.accessToken, expireIn: callback.expireIn}, null, '/');
+      this.saveState(callback.accessToken, 'accessToken');
+      this.saveState(callback.expireIn, 'expireIn');
+      /*if (window.history.state.accessToken) {
+        Spotify.getUserDetails().then(user => {
+          this.saveState(this.state.user, 'user');
+        });
+      }*/
+    }
+  }
+
+  saveState(state, name) {
+    window.localStorage.setItem(clientId+name,state);
+    console.log(window.localStorage);
   }
 
   searchSpotify(searchTerm) {
@@ -49,6 +88,7 @@ class App extends React.Component {
   }
 
   login() {
+    window.localStorage.clear();
     Spotify.accessSpotify();
   }
 

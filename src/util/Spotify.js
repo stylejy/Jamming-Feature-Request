@@ -1,24 +1,25 @@
-const clientId = '92654c9fd6694712a18bfade3fbdabfe';
+export const clientId = '92654c9fd6694712a18bfade3fbdabfe';
 const redirectUri = 'http://localhost:3000/';
 const scope = 'playlist-modify-public';
 
-const Spotify = {
+export const Spotify = {
   processAuthValues() {
     const tokenCallback = window.location.href.match(/access_token=([^&]*)/);
     const expireInCallBack = window.location.href.match(/expires_in=([^&]*)/);
     const errorCallback = window.location.href.match(/error=([^&]*)/);
 
     if (tokenCallback != null) {
-      window.history.pushState({accessToken: tokenCallback[1], expireIn: expireInCallBack[1]}, null, '/');
-      window.setTimeout(() => window.location.reload(), (Number(window.history.state.expireIn) - 100) * 1000);
-    } else if (errorCallback != null) {
-      console.log(errorCallback[1]);
+      //window.setTimeout(() => window.location.reload(), (Number(window.history.state.expireIn) - 100) * 1000);
+      return {accessToken: tokenCallback[1], expireIn: expireInCallBack[1]};
     } else {
-      window.history.pushState({accessToken: null, expireIn: null}, null, '/');
+      if (errorCallback != null) {
+        console.log(errorCallback[1]);
+      }
+      return false;
     }
   },
   loginStatus() {
-    if (window.history.state.accessToken) {
+    if (window.history.state !== null && window.history.state.accessToken) {
       return true;
     } else {
       return false;
@@ -32,7 +33,12 @@ const Spotify = {
   getUserDetails() {
     return fetch('https://api.spotify.com/v1/me', {
       headers: { 'Authorization': 'Bearer ' + window.history.state.accessToken }
-    }).then(response => response.json()).then(jsonResponse => jsonResponse);
+    }).then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+      throw new Error('Request failed');
+    }, networkError => console.log(networkError.message)).then(jsonResponse => jsonResponse);
   },
   search(searchTerm) {
     return fetch(`https://api.spotify.com/v1/search?q=track:${encodeURI(searchTerm)}&type=track`, {
@@ -63,5 +69,3 @@ const Spotify = {
     }).then(response => response.json()).then(jsonResponse => console.log(jsonResponse));
   }
 };
-
-export default Spotify;
