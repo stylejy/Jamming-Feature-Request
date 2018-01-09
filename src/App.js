@@ -10,33 +10,17 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
+    this.songs = [];
+    this.init();
+    console.log(window.history);
+    console.log(localStorage);
+
     this.state = {
-      songs: [],
+      songs: this.songs,
       addedSongs: [],
       user: {},
       playlist: {},
     };
-
-
-
-    this.init();
-    console.log(window.history);
-    //Spotify.processAuthValues();
-
-    /*if (window.history.state.accessToken) {
-      Spotify.getUserDetails().then(user => {
-        this.state.user = user;
-        this.saveState(this.state.user, 'user');
-      });
-    } else {
-      window.localStorage.clear();
-    }*/
-
-    /**
-    I don't use setState in a constructor becuase it cuases the error below:
-     "Warning: setState(...): Can only update a mounted or mounting component. This usually means you called setState() on an unmounted component. This is a no-op. Please check the code for the App component."
-    **/
-    //this.setState({user: Spotify.getUserDetails()});
 
     this.searchSpotify = this.searchSpotify.bind(this);
     this.loginStatus = this.loginStatus.bind(this);
@@ -49,16 +33,22 @@ class App extends React.Component {
   init() {
     const callback = Spotify.processAuthValues();
 
-    //window.history.pushState({accessToken: localStorage[clientId + 'accessToken'], expireIn: localStorage[clientId + 'expireIn']}, null, '/');
     if (callback) {
       window.history.pushState({accessToken: callback.accessToken, expireIn: callback.expireIn}, null, '/');
       this.saveState(callback.accessToken, 'accessToken');
       this.saveState(callback.expireIn, 'expireIn');
-      /*if (window.history.state.accessToken) {
-        Spotify.getUserDetails().then(user => {
-          this.saveState(this.state.user, 'user');
-        });
-      }*/
+      Spotify.getUserDetails().then(user => {
+        console.log(user);
+        this.saveState(JSON.stringify(user), 'user');
+        console.log(JSON.parse(localStorage[clientId + 'user']));
+      });
+    } else {
+      window.history.pushState({accessToken: localStorage[clientId + 'accessToken'], expireIn: localStorage[clientId + 'expireIn']}, null, '/');
+    }
+
+    if (localStorage[clientId + 'songs']) {
+      const restoredSongs = JSON.parse(localStorage[clientId + 'songs']);
+      this.songs = restoredSongs;
     }
   }
 
@@ -68,7 +58,10 @@ class App extends React.Component {
   }
 
   searchSpotify(searchTerm) {
-    Spotify.search(searchTerm).then(songs => this.setState({songs: songs}, () => {console.log(this.state.songs);}));
+    Spotify.search(searchTerm).then(songs => {
+      this.setState({songs: songs}, () => console.log(this.state.songs));
+      this.saveState(JSON.stringify(songs), 'songs');
+    });
   }
 
   addToList(index) {
