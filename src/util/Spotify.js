@@ -9,7 +9,6 @@ export const Spotify = {
     const errorCallback = window.location.href.match(/error=([^&]*)/);
 
     if (tokenCallback != null) {
-      //window.setTimeout(() => window.location.reload(), (Number(window.history.state.expireIn) - 100) * 1000);
       return {accessToken: tokenCallback[1], expireIn: expireInCallBack[1]};
     } else {
       if (errorCallback != null) {

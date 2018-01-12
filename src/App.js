@@ -11,15 +11,21 @@ class App extends React.Component {
     super(props);
 
     this.songs = [];
+    this.addedSongs = [];
+    this.user = {};
+    this.playlist = {};
+    this.tokenExpiringTime = 0;
+
     this.init();
     console.log(window.history);
     console.log(localStorage);
 
     this.state = {
       songs: this.songs,
-      addedSongs: [],
-      user: {},
-      playlist: {},
+      addedSongs: this.addedSongs,
+      user: this.user,
+      playlist: this.playlist,
+      tokenExpiringTime: this.tokenExpiringTime
     };
 
     this.searchSpotify = this.searchSpotify.bind(this);
@@ -34,21 +40,51 @@ class App extends React.Component {
     const callback = Spotify.processAuthValues();
 
     if (callback) {
-      window.history.pushState({accessToken: callback.accessToken, expireIn: callback.expireIn}, null, '/');
+      const loginTime = new Date().getTime();
+      this.tokenExpiringTime = loginTime + 10000;
+      this.tokenExpiringController(loginTime);
+
+      this.saveState(this.tokenExpiringTime, 'tokenExpiringTime');
       this.saveState(callback.accessToken, 'accessToken');
       this.saveState(callback.expireIn, 'expireIn');
+
+      window.history.pushState({accessToken: callback.accessToken, expireIn: callback.expireIn}, null, '/');
       Spotify.getUserDetails().then(user => {
-        console.log(user);
+        this.user = user;
         this.saveState(JSON.stringify(user), 'user');
-        console.log(JSON.parse(localStorage[clientId + 'user']));
       });
     } else {
-      window.history.pushState({accessToken: localStorage[clientId + 'accessToken'], expireIn: localStorage[clientId + 'expireIn']}, null, '/');
+      this.user = JSON.parse(localStorage[clientId + 'user']);
+      this.tokenExpiringTime = localStorage[clientId + 'tokenExpiringTime'];
+
+      const currentTime = new Date().getTime();
+      this.tokenExpiringController(currentTime);
+
     }
 
     if (localStorage[clientId + 'songs']) {
-      const restoredSongs = JSON.parse(localStorage[clientId + 'songs']);
-      this.songs = restoredSongs;
+      this.songs = JSON.parse(localStorage[clientId + 'songs']);
+    }
+
+    if (localStorage[clientId + 'addedSongs']) {
+      this.addedSongs = JSON.parse(localStorage[clientId + 'addedSongs']);
+    }
+
+    if (localStorage[clientId + 'playlist']) {
+      this.playlist = JSON.parse(localStorage[clientId + 'playlist']);
+    }
+  }
+
+  tokenExpiringController(time) {
+    const leftTime = this.tokenExpiringTime - time;
+    console.log(leftTime);
+
+    if (leftTime > 0) {
+      console.log('token is not expired.');
+      window.setTimeout(() => window.location.reload(), leftTime);
+      window.history.pushState({accessToken: localStorage[clientId + 'accessToken'], expireIn: localStorage[clientId + 'expireIn']}, null, '/');
+    } else {
+      window.history.pushState({accessToken: undefined}, null, '/');
     }
   }
 
@@ -68,6 +104,7 @@ class App extends React.Component {
     console.log(this.state.addedSongs);
     this.state.addedSongs.push(this.state.songs[index]);
     this.setState({addedSongs: this.state.addedSongs});
+    this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs');
   }
 
   removeFromAddedSongs(index) {
@@ -86,12 +123,20 @@ class App extends React.Component {
   }
 
   createPlaylist(name) {
-    const addedSongs = this.state.addedSongs;
-    this.setState({addedSongs: []});
-    Spotify.createPlaylist(this.state.user.id, name).then(playlist => this.setState({playlist: playlist}, () => {
-      console.log(this.state.playlist);
-      Spotify.addTracks(this.state.user.id, this.state.playlist.id, addedSongs);
-    }));
+    if (this.state.playlist === {}) {
+      Spotify.createPlaylist(this.state.user.id, name).then(playlist => this.setState({playlist: playlist}, () => {
+        console.log('createPlaylist');
+        console.log(this.state.playlist);
+        this.saveState(JSON.stringify(playlist), 'playlist');
+        Spotify.addTracks(this.state.user.id, this.state.playlist.id, this.state.addedSongs);
+        this.setState({addedSongs: []});
+        this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs');
+      }));
+    } else {
+      Spotify.addTracks(this.state.user.id, this.state.playlist.id, this.state.addedSongs);
+      this.setState({addedSongs: []});
+      this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs');
+    }
   }
 
   render() {
