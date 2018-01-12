@@ -41,14 +41,14 @@ class App extends React.Component {
 
     if (callback) {
       const loginTime = new Date().getTime();
-      this.tokenExpiringTime = loginTime + 10000;
+      this.tokenExpiringTime = loginTime + (callback.expireIn - 300) * 1000;
       this.tokenExpiringController(loginTime);
 
       this.saveState(this.tokenExpiringTime, 'tokenExpiringTime');
       this.saveState(callback.accessToken, 'accessToken');
       this.saveState(callback.expireIn, 'expireIn');
 
-      window.history.pushState({accessToken: callback.accessToken, expireIn: callback.expireIn}, null, '/');
+      window.history.pushState({accessToken: callback.accessToken}, null, '/');
       Spotify.getUserDetails().then(user => {
         this.user = user;
         this.saveState(JSON.stringify(user), 'user');
@@ -77,7 +77,6 @@ class App extends React.Component {
 
   tokenExpiringController(time) {
     const leftTime = this.tokenExpiringTime - time;
-    console.log(leftTime);
 
     if (leftTime > 0) {
       console.log('token is not expired.');
