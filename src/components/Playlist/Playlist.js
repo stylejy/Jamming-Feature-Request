@@ -20,7 +20,7 @@ class Playlist extends React.Component {
 
   savePlaylist(event) {
     const playListInput = document.getElementById('playListName');
-    if (playListInput.value > 0) {
+    if (this.props.addedSongs.length > 0) {
       this.props.createPlaylist(playListInput.value);
       playListInput.value = 'New Playlist';
     }
@@ -56,7 +56,7 @@ class Playlist extends React.Component {
     return (
       <div className="Playlist">
         <input id='playListName' onMouseEnter={this.clearPlaylistField} onMouseLeave={this.revertPlaylistField} type='text' defaultValue='New Playlist' />
-        <div className='TrackList'>
+        <div className='TrackList' id='TrackList'>
           { this.props.addedSongs.map((song, index) => {
             return (
               <div className="Track" key={index}>

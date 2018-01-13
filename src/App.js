@@ -117,7 +117,6 @@ class App extends React.Component {
   }
 
   login() {
-    window.localStorage.clear();
     Spotify.accessSpotify();
   }
 
@@ -140,11 +139,18 @@ class App extends React.Component {
     }
   }
 
+  getUserName() {
+    if (Object.keys(this.state.user).length !== 0 && this.loginStatus()) {
+      return this.state.user.display_name;
+    }
+  }
+
   render() {
     return (
       <div>
         <h1>Ja<span className="highlight">mmm</span>ing</h1>
         <div className="App">
+          <h2 className="user">Hi! {this.getUserName()}</h2>
           <SearchBar loginStatus={this.loginStatus} searchSpotify={this.searchSpotify} login={this.login} />
           <div className="App-playlist">
             <SearchResults add={this.addToList} songs={this.state.songs} />
