@@ -20,8 +20,10 @@ class Playlist extends React.Component {
 
   savePlaylist(event) {
     const playListInput = document.getElementById('playListName');
-    this.props.createPlaylist(playListInput.value);
-    playListInput.value = 'New Playlist';
+    if (playListInput.value > 0) {
+      this.props.createPlaylist(playListInput.value);
+      playListInput.value = 'New Playlist';
+    }
   }
 
   clearPlaylistField(event) {
@@ -45,7 +47,7 @@ class Playlist extends React.Component {
       );
     } else {
       return (
-        <a className="Playlist-save">SAVE TO SPOTIFY</a>
+        <div className="Playlist-save-unclickable">SAVE TO SPOTIFY<br/><br/> ( Login Required )</div>
       );
     }
   }
