@@ -18,15 +18,17 @@ class SearchBar extends React.Component {
   }
 
   handleSearch(event) {
-    const searchTerm = document.getElementById('search').value;
-    this.props.searchSpotify(searchTerm);
+    if (event.keyCode === 13 || event.type === 'click') {
+      const searchTerm = document.getElementById('search').value;
+      this.props.searchSpotify(searchTerm);
+    }
   }
 
   createSearchElements() {
     if (this.state.isUserLoggedIn) {
       return (
         <div className="SearchBar">
-          <input id="search" placeholder="Enter A Song Title" />
+          <input id="search" onKeyDown={this.handleSearch} placeholder="Enter A Song Title" />
           <a onClick={this.handleSearch}>SEARCH</a>
         </div>
       );
