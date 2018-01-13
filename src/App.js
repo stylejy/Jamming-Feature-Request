@@ -17,8 +17,8 @@ class App extends React.Component {
     this.tokenExpiringTime = 0;
 
     this.init();
-    console.log(window.history);
-    console.log(localStorage);
+    //console.log(window.history);
+    //console.log(localStorage);
 
     this.state = {
       songs: this.songs,
@@ -41,7 +41,7 @@ class App extends React.Component {
 
     if (callback) {
       const loginTime = new Date().getTime();
-      this.tokenExpiringTime = loginTime + (callback.expireIn - 300) * 1000;
+      this.tokenExpiringTime = loginTime + (callback.expireIn - 300) * 10000;
       this.tokenExpiringController(loginTime);
 
       this.saveState(this.tokenExpiringTime, 'tokenExpiringTime');
@@ -52,6 +52,7 @@ class App extends React.Component {
       Spotify.getUserDetails().then(user => {
         this.user = user;
         this.saveState(JSON.stringify(user), 'user');
+        this.getUserName();
       });
     } else {
       this.user = JSON.parse(localStorage[clientId + 'user']);
@@ -59,7 +60,7 @@ class App extends React.Component {
 
       const currentTime = new Date().getTime();
       this.tokenExpiringController(currentTime);
-
+      this.getUserName();
     }
 
     if (localStorage[clientId + 'songs']) {
@@ -79,7 +80,6 @@ class App extends React.Component {
     const leftTime = this.tokenExpiringTime - time;
 
     if (leftTime > 0) {
-      console.log('token is not expired.');
       window.setTimeout(() => window.location.reload(), leftTime);
       window.history.pushState({accessToken: localStorage[clientId + 'accessToken'], expireIn: localStorage[clientId + 'expireIn']}, null, '/');
     } else {
@@ -89,7 +89,6 @@ class App extends React.Component {
 
   saveState(state, name) {
     window.localStorage.setItem(clientId+name,state);
-    console.log(window.localStorage);
   }
 
   searchSpotify(searchTerm) {
@@ -132,7 +131,6 @@ class App extends React.Component {
         this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs');
       }));
     } else {
-      console.log('test');
       Spotify.addTracks(this.state.user.id, this.state.playlist.id, this.state.addedSongs);
       this.setState({addedSongs: []});
       this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs');
@@ -140,8 +138,11 @@ class App extends React.Component {
   }
 
   getUserName() {
-    if (Object.keys(this.state.user).length !== 0 && this.loginStatus()) {
-      return this.state.user.display_name;
+    const user = document.getElementById('user');
+    if (user && Object.keys(this.user).length !== 0 && this.loginStatus()) {
+      user.outerHTML='<h2 class="user" id="user">Hi! ' + this.user.display_name + '</h2>';
+    } else if (this.loginStatus()) {
+      return this.user.display_name;
     }
   }
 
@@ -150,7 +151,7 @@ class App extends React.Component {
       <div>
         <h1>Ja<span className="highlight">mmm</span>ing</h1>
         <div className="App">
-          <h2 className="user">Hi! {this.getUserName()}</h2>
+          <h2 className="user" id="user">Hi! {this.getUserName()}</h2>
           <SearchBar loginStatus={this.loginStatus} searchSpotify={this.searchSpotify} login={this.login} />
           <div className="App-playlist">
             <SearchResults add={this.addToList} songs={this.state.songs} />
