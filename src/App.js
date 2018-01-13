@@ -122,16 +122,18 @@ class App extends React.Component {
   }
 
   createPlaylist(name) {
-    if (this.state.playlist === {}) {
+    console.log(this.state.playlist);
+    //if this.state.playlist is empty, it takes a playlist detail from Spotify.
+    if (Object.keys(this.state.playlist).length === 0) {
       Spotify.createPlaylist(this.state.user.id, name).then(playlist => this.setState({playlist: playlist}, () => {
         console.log('createPlaylist');
-        console.log(this.state.playlist);
         this.saveState(JSON.stringify(playlist), 'playlist');
         Spotify.addTracks(this.state.user.id, this.state.playlist.id, this.state.addedSongs);
         this.setState({addedSongs: []});
         this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs');
       }));
     } else {
+      console.log('test');
       Spotify.addTracks(this.state.user.id, this.state.playlist.id, this.state.addedSongs);
       this.setState({addedSongs: []});
       this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs');
@@ -146,7 +148,7 @@ class App extends React.Component {
           <SearchBar loginStatus={this.loginStatus} searchSpotify={this.searchSpotify} login={this.login} />
           <div className="App-playlist">
             <SearchResults add={this.addToList} songs={this.state.songs} />
-            <Playlist addedSongs={this.state.addedSongs} remove={this.removeFromAddedSongs} createPlaylist={this.createPlaylist} />
+            <Playlist loginStatus={this.loginStatus} addedSongs={this.state.addedSongs} remove={this.removeFromAddedSongs} createPlaylist={this.createPlaylist} />
           </div>
         </div>
       </div>

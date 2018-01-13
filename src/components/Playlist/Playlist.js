@@ -11,6 +11,7 @@ class Playlist extends React.Component {
     this.savePlaylist = this.savePlaylist.bind(this);
     this.clearPlaylistField = this.clearPlaylistField.bind(this);
     this.revertPlaylistField = this.revertPlaylistField.bind(this);
+    this.createSaveButtonElement = this.createSaveButtonElement.bind(this);
   }
 
   handleRemove(index) {
@@ -37,6 +38,18 @@ class Playlist extends React.Component {
     }
   }
 
+  createSaveButtonElement() {
+    if (this.props.loginStatus()) {
+      return (
+        <a onClick={this.savePlaylist} className="Playlist-save">SAVE TO SPOTIFY</a>
+      );
+    } else {
+      return (
+        <a className="Playlist-save">SAVE TO SPOTIFY</a>
+      );
+    }
+  }
+
   render() {
     return (
       <div className="Playlist">
@@ -51,7 +64,7 @@ class Playlist extends React.Component {
             )
           })}
         </div>
-        <a onClick={this.savePlaylist} className="Playlist-save">SAVE TO SPOTIFY</a>
+        {this.createSaveButtonElement()}
       </div>
     );
   }
