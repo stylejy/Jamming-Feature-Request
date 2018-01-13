@@ -55,7 +55,7 @@ class Playlist extends React.Component {
   render() {
     return (
       <div className="Playlist">
-        <input id='playListName' onMouseEnter={this.clearPlaylistField} onMouseLeave={this.revertPlaylistField} type='text' defaultValue='New Playlist' />
+        <input id='playListName' onMouseEnter={this.clearPlaylistField} onBlur={this.revertPlaylistField} type='text' defaultValue='New Playlist' />
         <div className='TrackList' id='TrackList'>
           { this.props.addedSongs.map((song, index) => {
             return (
