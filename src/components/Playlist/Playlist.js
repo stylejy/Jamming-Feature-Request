@@ -7,11 +7,14 @@ class Playlist extends React.Component {
   constructor(props) {
     super(props);
 
+    this.isNameFieldClicked = false;
+
     this.handleRemove = this.handleRemove.bind(this);
     this.savePlaylist = this.savePlaylist.bind(this);
     this.clearPlaylistField = this.clearPlaylistField.bind(this);
     this.revertPlaylistField = this.revertPlaylistField.bind(this);
     this.createSaveButtonElement = this.createSaveButtonElement.bind(this);
+    this.playlistClickHandler = this.playlistClickHandler.bind(this);
   }
 
   handleRemove(index) {
@@ -35,9 +38,15 @@ class Playlist extends React.Component {
 
   revertPlaylistField(event) {
     const playListInput = document.getElementById('playListName');
-    if (playListInput.value === '') {
+    if (playListInput.value === '' && this.isNameFieldClicked === false) {
+      playListInput.value = 'New Playlist';
+    } else if (event.type === 'blur') {
       playListInput.value = 'New Playlist';
     }
+  }
+
+  playlistClickHandler(event) {
+    this.isNameFieldClicked = true;
   }
 
   createSaveButtonElement() {
@@ -55,7 +64,7 @@ class Playlist extends React.Component {
   render() {
     return (
       <div className="Playlist">
-        <input id='playListName' onMouseEnter={this.clearPlaylistField} onBlur={this.revertPlaylistField} type='text' defaultValue='New Playlist' />
+        <input id='playListName' onMouseEnter={this.clearPlaylistField} onClick={this.playlistClickHandler} onMouseLeave={this.revertPlaylistField} onBlur={this.revertPlaylistField} type='text' defaultValue='New Playlist' />
         <div className='TrackList' id='TrackList'>
           { this.props.addedSongs.map((song, index) => {
             return (
