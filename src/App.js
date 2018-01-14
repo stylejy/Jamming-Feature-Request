@@ -109,6 +109,7 @@ class App extends React.Component {
     console.log(index);
     this.state.addedSongs.splice(index, 1);
     this.setState({addedSongs: this.state.addedSongs});
+    this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs');
   }
 
   loginStatus() {
@@ -127,13 +128,11 @@ class App extends React.Component {
         console.log('createPlaylist');
         this.saveState(JSON.stringify(playlist), 'playlist');
         Spotify.addTracks(this.state.user.id, this.state.playlist.id, this.state.addedSongs);
-        this.setState({addedSongs: []});
-        this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs');
+        this.setState({addedSongs: []}, () => this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs'));
       }));
     } else {
       Spotify.addTracks(this.state.user.id, this.state.playlist.id, this.state.addedSongs);
-      this.setState({addedSongs: []});
-      this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs');
+      this.setState({addedSongs: []}, () => this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs'));
     }
   }
 
