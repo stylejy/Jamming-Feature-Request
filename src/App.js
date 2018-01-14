@@ -93,23 +93,20 @@ class App extends React.Component {
 
   searchSpotify(searchTerm) {
     Spotify.search(searchTerm).then(songs => {
-      this.setState({songs: songs}, () => console.log(this.state.songs));
-      this.saveState(JSON.stringify(songs), 'songs');
+      this.setState({songs: songs}, () => this.saveState(JSON.stringify(songs), 'songs'));
     });
   }
 
   addToList(index) {
     console.log(this.state.addedSongs);
     this.state.addedSongs.push(this.state.songs[index]);
-    this.setState({addedSongs: this.state.addedSongs});
-    this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs');
+    this.setState({addedSongs: this.state.addedSongs}, () => this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs'));
   }
 
   removeFromAddedSongs(index) {
     console.log(index);
     this.state.addedSongs.splice(index, 1);
-    this.setState({addedSongs: this.state.addedSongs});
-    this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs');
+    this.setState({addedSongs: this.state.addedSongs}, () => this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs'));
   }
 
   loginStatus() {
