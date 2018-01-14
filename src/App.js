@@ -54,7 +54,7 @@ class App extends React.Component {
         this.saveState(JSON.stringify(user), 'user');
         this.getUserName();
       });
-    } else {
+    } else if (localStorage[clientId + 'user'] && localStorage[clientId + 'tokenExpiringTime']) {
       this.user = JSON.parse(localStorage[clientId + 'user']);
       this.tokenExpiringTime = localStorage[clientId + 'tokenExpiringTime'];
 
