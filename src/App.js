@@ -84,6 +84,7 @@ class App extends React.Component {
       window.history.pushState({accessToken: localStorage[clientId + 'accessToken'], expireIn: localStorage[clientId + 'expireIn']}, null, '/');
     } else {
       window.history.pushState({accessToken: undefined}, null, '/');
+      localStorage.clear();
     }
   }
 
