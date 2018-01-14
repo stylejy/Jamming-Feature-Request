@@ -40,7 +40,7 @@ class Playlist extends React.Component {
     const playListInput = document.getElementById('playListName');
     if (playListInput.value === '' && this.isNameFieldClicked === false) {
       playListInput.value = 'New Playlist';
-    } else if (event.type === 'blur') {
+    } else if (playListInput.value === '' && event.type === 'blur') {
       playListInput.value = 'New Playlist';
     }
   }
