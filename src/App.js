@@ -135,10 +135,14 @@ class App extends React.Component {
 
   getUserName() {
     const user = document.getElementById('user');
-    if (user && Object.keys(this.user).length !== 0 && this.loginStatus()) {
-      user.outerHTML='<h2 class="user" id="user">Hi! ' + this.user.display_name + '</h2>';
-    } else if (this.loginStatus()) {
-      return this.user.display_name;
+    //It only returns if display_name is not null.
+    if (this.user.display_name) {
+      if (user && Object.keys(this.user).length !== 0 && this.loginStatus()) {
+        //It is used if the page is already rendered.
+        user.outerHTML='<h2 class="user" id="user">Hi! ' + this.user.display_name + '</h2>';
+      } else if (this.loginStatus()) {
+        return this.user.display_name;
+      }
     }
   }
 
