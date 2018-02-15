@@ -2,19 +2,92 @@ export const clientId = '92654c9fd6694712a18bfade3fbdabfe';
 const redirectUri = 'http://localhost:3000/';
 const scope = 'playlist-modify-public';
 
-export const Spotify = {
-  processAuthValues() {
-    const tokenCallback = window.location.href.match(/access_token=([^&]*)/);
-    const expireInCallBack = window.location.href.match(/expires_in=([^&]*)/);
-    const errorCallback = window.location.href.match(/error=([^&]*)/);
+let accessToken = '';
+let expireIn = '';
+let tokenExpiringTime = 0;
+let songs = [];
+let addedSongs = [];
+let user = {};
+let playlist = {};
 
-    if (tokenCallback != null) {
-      return {accessToken: tokenCallback[1], expireIn: expireInCallBack[1]};
-    } else {
-      if (errorCallback != null) {
+export const Spotify = {
+  init() {
+    /** If window.location.href equals the redirectUri,
+        it means that the url doesn't have any callback.
+    */
+    if (window.location.href !== redirectUri) {
+      accessToken = window.location.href.match(/access_token=([^&]*)/)[1];
+      expireIn = window.location.href.match(/expires_in=([^&]*)/)[1];
+      const errorCallback = window.location.href.match(/error=([^&]*)/);
+
+      if (errorCallback) {
         console.log(errorCallback[1]);
       }
-      return false;
+
+      this.expiringTimeController('login', expireIn);
+      this.saveState(accessToken, 'accessToken');
+      this.saveState(expireIn, 'expireIn');
+      window.history.pushState({accessToken: accessToken}, null, '/');
+
+      this.getUserDetails().then(userDetails => {
+        user = userDetails;
+        this.saveState(JSON.stringify(user), 'user');
+        //this.getUserName();
+      });
+    } else if (localStorage[clientId + 'user'] && localStorage[clientId + 'tokenExpiringTime']) {
+      user = JSON.parse(localStorage[clientId + 'user']);
+      tokenExpiringTime = localStorage[clientId + 'tokenExpiringTime'];
+      this.expiringTimeController('current');
+    } else {
+      this.expiringTimeController('current');
+    }
+
+    this.restoreStates();
+
+    return {songs: songs, addedSongs: addedSongs, user: user, playlist: playlist, tokenExpiringTime: tokenExpiringTime};
+  },
+  getUserName() {
+    //If user name is not set by the user, user.display_name will not be returned.
+    if (user && user.display_name && this.loginStatus()) {
+      return user.display_name;
+    }
+  },
+  restoreStates() {
+    if (localStorage[clientId + 'songs']) {
+      songs = JSON.parse(localStorage[clientId + 'songs']);
+
+    }
+
+    if (localStorage[clientId + 'addedSongs']) {
+      addedSongs = JSON.parse(localStorage[clientId + 'addedSongs']);
+    }
+
+    if (localStorage[clientId + 'playlist']) {
+      playlist = JSON.parse(localStorage[clientId + 'playlist']);
+    }
+  },
+  saveState(state, name) {
+    window.localStorage.setItem(clientId+name,state);
+  },
+  expiringTimeController(type) {
+    const currentTime = new Date().getTime();
+
+    if (type === 'login') {
+      tokenExpiringTime = currentTime + (expireIn - 300) * 1000;
+      this.saveState(tokenExpiringTime, 'tokenExpiringTime');
+    } else {
+      tokenExpiringTime = localStorage[clientId + 'tokenExpiringTime'];
+      console.log(tokenExpiringTime);
+    }
+
+    const leftTime = tokenExpiringTime - currentTime;
+
+    if (leftTime > 0) {
+      window.setTimeout(() => window.location.reload(), leftTime);
+      window.history.pushState({accessToken: localStorage[clientId + 'accessToken'], expireIn: localStorage[clientId + 'expireIn']}, null, '/');
+    } else {
+      window.history.pushState({accessToken: undefined}, null, '/');
+      localStorage.clear();
     }
   },
   loginStatus() {

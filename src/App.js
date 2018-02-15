@@ -10,22 +10,14 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.songs = [];
-    this.addedSongs = [];
-    this.user = {};
-    this.playlist = {};
-    this.tokenExpiringTime = 0;
-
-    this.init();
-    //console.log(window.history);
-    //console.log(localStorage);
+    const init = Spotify.init();
 
     this.state = {
-      songs: this.songs,
-      addedSongs: this.addedSongs,
-      user: this.user,
-      playlist: this.playlist,
-      tokenExpiringTime: this.tokenExpiringTime
+      songs: init.songs,
+      addedSongs: init.addedSongs,
+      user: init.user,
+      playlist: init.playlist,
+      tokenExpiringTime: init.tokenExpiringTime
     };
 
     this.searchSpotify = this.searchSpotify.bind(this);
@@ -36,7 +28,7 @@ class App extends React.Component {
     this.createPlaylist = this.createPlaylist.bind(this);
   }
 
-  init() {
+  /*init() {
     const callback = Spotify.processAuthValues();
 
     if (callback) {
@@ -86,28 +78,28 @@ class App extends React.Component {
       window.history.pushState({accessToken: undefined}, null, '/');
       localStorage.clear();
     }
-  }
+
 
   saveState(state, name) {
     window.localStorage.setItem(clientId+name,state);
-  }
+  }*/
 
   searchSpotify(searchTerm) {
     Spotify.search(searchTerm).then(songs => {
-      this.setState({songs: songs}, () => this.saveState(JSON.stringify(songs), 'songs'));
+      this.setState({songs: songs}, () => Spotify.saveState(JSON.stringify(songs), 'songs'));
     });
   }
 
   addToList(index) {
     console.log(this.state.addedSongs);
     this.state.addedSongs.push(this.state.songs[index]);
-    this.setState({addedSongs: this.state.addedSongs}, () => this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs'));
+    this.setState({addedSongs: this.state.addedSongs}, () => Spotify.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs'));
   }
 
   removeFromAddedSongs(index) {
     console.log(index);
     this.state.addedSongs.splice(index, 1);
-    this.setState({addedSongs: this.state.addedSongs}, () => this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs'));
+    this.setState({addedSongs: this.state.addedSongs}, () => Spotify.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs'));
   }
 
   loginStatus() {
@@ -123,26 +115,27 @@ class App extends React.Component {
     if (Object.keys(this.state.playlist).length === 0) {
       Spotify.createPlaylist(this.state.user.id, name).then(playlist => this.setState({playlist: playlist}, () => {
         console.log('createPlaylist');
-        this.saveState(JSON.stringify(playlist), 'playlist');
+        Spotify.saveState(JSON.stringify(playlist), 'playlist');
         Spotify.addTracks(this.state.user.id, this.state.playlist.id, this.state.addedSongs);
-        this.setState({addedSongs: []}, () => this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs'));
+        this.setState({addedSongs: []}, () => Spotify.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs'));
       }));
     } else {
       Spotify.addTracks(this.state.user.id, this.state.playlist.id, this.state.addedSongs);
-      this.setState({addedSongs: []}, () => this.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs'));
+      this.setState({addedSongs: []}, () => Spotify.saveState(JSON.stringify(this.state.addedSongs), 'addedSongs'));
     }
   }
 
-  getUserName() {
+  setUserName() {
     const user = document.getElementById('user');
     //It only returns if display_name is not null.
-    if (this.user.display_name) {
-      if (user && Object.keys(this.user).length !== 0 && this.loginStatus()) {
+    if (this.state.user) {
+      user.outerHTML='<h2 class="user" id="user">Hi! ' + this.state.user.display_name + '</h2>';
+      /*if (user && Object.keys(this.user).length !== 0 && this.loginStatus()) {
         //It is used if the page is already rendered.
-        user.outerHTML='<h2 class="user" id="user">Hi! ' + this.user.display_name + '</h2>';
+        user.outerHTML='<h2 class="user" id="user">Hi! ' + this.state.user.display_name + '</h2>';
       } else if (this.loginStatus()) {
-        return this.user.display_name;
-      }
+        return this.state.user.display_name;
+      }*/
     }
   }
 
@@ -151,7 +144,7 @@ class App extends React.Component {
       <div>
         <h1>Ja<span className="highlight">mmm</span>ing</h1>
         <div className="App">
-          <h2 className="user" id="user">Hi! {this.getUserName()}</h2>
+          <h2 className="user" id="user">Hi! {Spotify.getUserName()}</h2>
           <SearchBar loginStatus={this.loginStatus} searchSpotify={this.searchSpotify} login={this.login} />
           <div className="App-playlist">
             <SearchResults add={this.addToList} songs={this.state.songs} />
