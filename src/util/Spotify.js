@@ -1,5 +1,5 @@
 export const clientId = '92654c9fd6694712a18bfade3fbdabfe';
-const redirectUri = 'http://localhost:3000/';
+const redirectUri = 'https://stylejy-jamming.surge.sh/';
 const scope = 'playlist-modify-public';
 
 let accessToken = '';
