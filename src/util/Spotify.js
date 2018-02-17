@@ -1,5 +1,6 @@
-export const clientId = '92654c9fd6694712a18bfade3fbdabfe';
-const redirectUri = 'https://stylejy-jamming.surge.sh/';
+const clientId = '92654c9fd6694712a18bfade3fbdabfe';
+//const redirectUri = 'https://stylejy-jamming.surge.sh/';
+const redirectUri = 'http://localhost:3000/';
 const scope = 'playlist-modify-public';
 
 let accessToken = '';
@@ -10,7 +11,7 @@ let addedSongs = [];
 let user = {};
 let playlist = {};
 
-export const Spotify = {
+const Spotify = {
   init() {
     /** If window.location.href equals the redirectUri,
         it means that the url doesn't have any callback.
@@ -29,28 +30,17 @@ export const Spotify = {
       this.saveState(expireIn, 'expireIn');
       window.history.pushState({accessToken: accessToken}, null, '/');
 
-      this.getUserDetails().then(userDetails => {
-        user = userDetails;
-        this.saveState(JSON.stringify(user), 'user');
-        //this.getUserName();
-      });
-    } else if (localStorage[clientId + 'user'] && localStorage[clientId + 'tokenExpiringTime']) {
+    } else if (this.loginStatus() && localStorage[clientId + 'user'] && localStorage[clientId + 'tokenExpiringTime']) {
       user = JSON.parse(localStorage[clientId + 'user']);
       tokenExpiringTime = localStorage[clientId + 'tokenExpiringTime'];
       this.expiringTimeController('current');
+      this.restoreStates();
     } else {
       this.expiringTimeController('current');
+      this.restoreStates();
     }
-
-    this.restoreStates();
 
     return {songs: songs, addedSongs: addedSongs, user: user, playlist: playlist, tokenExpiringTime: tokenExpiringTime};
-  },
-  getUserName() {
-    //If user name is not set by the user, user.display_name will not be returned.
-    if (user && user.display_name && this.loginStatus()) {
-      return user.display_name;
-    }
   },
   restoreStates() {
     if (localStorage[clientId + 'songs']) {
@@ -73,14 +63,14 @@ export const Spotify = {
     const currentTime = new Date().getTime();
 
     if (type === 'login') {
-      tokenExpiringTime = currentTime + (expireIn - 300) * 1000;
+      tokenExpiringTime = currentTime + (expireIn - 3590) * 1000;
       this.saveState(tokenExpiringTime, 'tokenExpiringTime');
     } else {
       tokenExpiringTime = localStorage[clientId + 'tokenExpiringTime'];
-      console.log(tokenExpiringTime);
     }
 
     const leftTime = tokenExpiringTime - currentTime;
+    console.log(leftTime);
 
     if (leftTime > 0) {
       window.setTimeout(() => window.location.reload(), leftTime);
@@ -107,6 +97,7 @@ export const Spotify = {
       headers: { 'Authorization': 'Bearer ' + window.history.state.accessToken }
     }).then(response => {
       if (response.ok) {
+        console.log('user detail response');
         return response.json();
       }
       throw new Error('Request failed');
@@ -141,3 +132,5 @@ export const Spotify = {
     }).then(response => response.json()).then(jsonResponse => console.log(jsonResponse));
   }
 };
+
+export default Spotify;

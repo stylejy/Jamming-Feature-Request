@@ -3,11 +3,12 @@ import './App.css';
 import SearchBar from './components/SearchBar/SearchBar';
 import SearchResults from './components/SearchResults/SearchResults';
 import Playlist from './components/Playlist/Playlist';
-import {clientId, Spotify} from './util/Spotify';
+import Spotify from './util/Spotify';
 
 class App extends React.Component {
 
   constructor(props) {
+    console.log('constructor');
     super(props);
 
     const init = Spotify.init();
@@ -28,61 +29,17 @@ class App extends React.Component {
     this.createPlaylist = this.createPlaylist.bind(this);
   }
 
-  /*init() {
-    const callback = Spotify.processAuthValues();
-
-    if (callback) {
-      const loginTime = new Date().getTime();
-      this.tokenExpiringTime = loginTime + (callback.expireIn - 300) * 10000;
-      this.tokenExpiringController(loginTime);
-
-      this.saveState(this.tokenExpiringTime, 'tokenExpiringTime');
-      this.saveState(callback.accessToken, 'accessToken');
-      this.saveState(callback.expireIn, 'expireIn');
-
-      window.history.pushState({accessToken: callback.accessToken}, null, '/');
-      Spotify.getUserDetails().then(user => {
-        this.user = user;
-        this.saveState(JSON.stringify(user), 'user');
-        this.getUserName();
+  componentDidMount() {
+    if (Object.keys(this.state.user).length === 0 && Spotify.loginStatus()) {
+      Spotify.getUserDetails().then(userDetails => {
+        this.setState({user: userDetails}, () => {
+          Spotify.saveState(JSON.stringify(this.state.user), 'user');
+        });
       });
-    } else if (localStorage[clientId + 'user'] && localStorage[clientId + 'tokenExpiringTime']) {
-      this.user = JSON.parse(localStorage[clientId + 'user']);
-      this.tokenExpiringTime = localStorage[clientId + 'tokenExpiringTime'];
-
-      const currentTime = new Date().getTime();
-      this.tokenExpiringController(currentTime);
-      this.getUserName();
-    }
-
-    if (localStorage[clientId + 'songs']) {
-      this.songs = JSON.parse(localStorage[clientId + 'songs']);
-    }
-
-    if (localStorage[clientId + 'addedSongs']) {
-      this.addedSongs = JSON.parse(localStorage[clientId + 'addedSongs']);
-    }
-
-    if (localStorage[clientId + 'playlist']) {
-      this.playlist = JSON.parse(localStorage[clientId + 'playlist']);
+    } else if(!Spotify.loginStatus()) {
+      this.setState({user: {}});
     }
   }
-
-  tokenExpiringController(time) {
-    const leftTime = this.tokenExpiringTime - time;
-
-    if (leftTime > 0) {
-      window.setTimeout(() => window.location.reload(), leftTime);
-      window.history.pushState({accessToken: localStorage[clientId + 'accessToken'], expireIn: localStorage[clientId + 'expireIn']}, null, '/');
-    } else {
-      window.history.pushState({accessToken: undefined}, null, '/');
-      localStorage.clear();
-    }
-
-
-  saveState(state, name) {
-    window.localStorage.setItem(clientId+name,state);
-  }*/
 
   searchSpotify(searchTerm) {
     Spotify.search(searchTerm).then(songs => {
@@ -125,26 +82,13 @@ class App extends React.Component {
     }
   }
 
-  setUserName() {
-    const user = document.getElementById('user');
-    //It only returns if display_name is not null.
-    if (this.state.user) {
-      user.outerHTML='<h2 class="user" id="user">Hi! ' + this.state.user.display_name + '</h2>';
-      /*if (user && Object.keys(this.user).length !== 0 && this.loginStatus()) {
-        //It is used if the page is already rendered.
-        user.outerHTML='<h2 class="user" id="user">Hi! ' + this.state.user.display_name + '</h2>';
-      } else if (this.loginStatus()) {
-        return this.state.user.display_name;
-      }*/
-    }
-  }
-
   render() {
+    console.log('render');
     return (
       <div>
         <h1>Ja<span className="highlight">mmm</span>ing</h1>
         <div className="App">
-          <h2 className="user" id="user">Hi! {Spotify.getUserName()}</h2>
+          <h2 className="user" id="user">Hi! {this.state.user.display_name}</h2>
           <SearchBar loginStatus={this.loginStatus} searchSpotify={this.searchSpotify} login={this.login} />
           <div className="App-playlist">
             <SearchResults add={this.addToList} songs={this.state.songs} />
