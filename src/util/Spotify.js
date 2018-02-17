@@ -63,7 +63,7 @@ const Spotify = {
     const currentTime = new Date().getTime();
 
     if (type === 'login') {
-      tokenExpiringTime = currentTime + (expireIn - 3590) * 1000;
+      tokenExpiringTime = currentTime + (expireIn - 300) * 1000;
       this.saveState(tokenExpiringTime, 'tokenExpiringTime');
     } else {
       tokenExpiringTime = localStorage[clientId + 'tokenExpiringTime'];
