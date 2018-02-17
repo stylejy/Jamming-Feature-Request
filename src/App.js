@@ -34,9 +34,10 @@ class App extends React.Component {
       Spotify.getUserDetails().then(userDetails => {
         this.setState({user: userDetails}, () => {
           Spotify.saveState(JSON.stringify(this.state.user), 'user');
+          console.log('setState done');
         });
       });
-    } else if(!Spotify.loginStatus()) {
+    } else if(!Spotify.loginStatus() && Object.keys(this.state.user).length !== 0) {
       this.setState({user: {}});
     }
   }
