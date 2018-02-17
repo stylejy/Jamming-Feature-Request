@@ -1,6 +1,6 @@
 const clientId = '92654c9fd6694712a18bfade3fbdabfe';
-//const redirectUri = 'https://stylejy-jamming.surge.sh/';
-const redirectUri = 'http://localhost:3000/';
+const redirectUri = 'https://stylejy-jamming.surge.sh/';
+//const redirectUri = 'http://localhost:3000/';
 const scope = 'playlist-modify-public';
 
 let accessToken = '';
@@ -63,7 +63,7 @@ const Spotify = {
     const currentTime = new Date().getTime();
 
     if (type === 'login') {
-      tokenExpiringTime = currentTime + (expireIn - 3590) * 1000;
+      tokenExpiringTime = currentTime + (expireIn - 300) * 1000;
       this.saveState(tokenExpiringTime, 'tokenExpiringTime');
     } else {
       tokenExpiringTime = localStorage[clientId + 'tokenExpiringTime'];
