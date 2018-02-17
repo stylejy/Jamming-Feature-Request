@@ -70,7 +70,7 @@ class App extends React.Component {
 
   createPlaylist(name) {
     //if this.state.playlist is empty, it takes a playlist detail from Spotify.
-    if (Object.keys(this.state.playlist).length === 0) {
+    if (Object.keys(this.state.playlist).length === 0 || name !== this.state.playlist.name) {
       Spotify.createPlaylist(this.state.user.id, name).then(playlist => this.setState({playlist: playlist}, () => {
         console.log('createPlaylist');
         Spotify.saveState(JSON.stringify(playlist), 'playlist');

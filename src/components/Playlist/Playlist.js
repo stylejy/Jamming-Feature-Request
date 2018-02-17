@@ -23,6 +23,7 @@ class Playlist extends React.Component {
 
   savePlaylist(event) {
     const playListInput = document.getElementById('playListName');
+    console.log(playListInput.value);
     if (this.props.addedSongs.length > 0) {
       this.props.createPlaylist(playListInput.value);
       playListInput.value = 'New Playlist';
@@ -70,7 +71,9 @@ class Playlist extends React.Component {
             return (
               <div className="Track" key={index}>
                 <Song song={song} />
-                <a onClick={() => this.handleRemove(index)} className="Track-action">-</a>
+                <a onClick={() => this.handleRemove(index)} className="Track-action">
+                  -
+                </a>
               </div>
             )
           })}
