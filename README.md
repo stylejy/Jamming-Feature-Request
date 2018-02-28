@@ -1,4 +1,4 @@
-To test this immediately, please visit (https://stylejy-jamming.surge.sh/).
+If you would like to see the product version, please visit (https://stylejy-jamming.surge.sh/).
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
